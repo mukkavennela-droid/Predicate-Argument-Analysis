@@ -1,0 +1,2292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Predicate-Argument Structure Analyzer</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
+        }
+
+        /* =====================================================
+           HOME PAGE SIDEBAR LAYOUT
+           ===================================================== */
+
+        .home-layout {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 255px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #11182f, #181d42);
+            color: white;
+            padding: 25px 18px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .logo-box {
+            width: 43px;
+            height: 43px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #5b5bf7, #714cf5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+            box-shadow: 0 6px 15px rgba(91,91,247,0.25);
+        }
+
+        .logo-text h2 {
+            margin: 0;
+            font-size: 15px;
+            color: white;
+        }
+
+        .logo-text p {
+            margin: 4px 0 0;
+            font-size: 11px;
+            color: #b9c1df;
+        }
+
+        .sidebar-nav {
+            margin-top: 22px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #dce2f7;
+            padding: 12px 13px;
+            margin-bottom: 7px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: bold;
+            transition: 0.25s;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(91,91,247,0.18);
+            color: white;
+            transform: translateX(2px);
+        }
+
+        .sidebar-nav a.active {
+            background: linear-gradient(135deg, #5355ef, #6252f4);
+            color: white;
+            box-shadow: 0 7px 18px rgba(83,85,239,0.25);
+        }
+
+        .sidebar-section {
+            margin-top: 30px;
+        }
+
+        .sidebar-section-title {
+            color: #929bc0;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 0 13px;
+            margin-bottom: 12px;
+        }
+
+        .module-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #cdd4ee;
+            font-size: 12px;
+            padding: 8px 13px;
+        }
+
+        .module-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #7168f5;
+        }
+
+        .sidebar-bottom {
+            margin-top: 35px;
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-bottom strong {
+            display: block;
+            font-size: 12px;
+            color: white;
+        }
+
+        .sidebar-bottom span {
+            display: block;
+            margin-top: 4px;
+            font-size: 10px;
+            color: #aeb7d6;
+        }
+
+        .home-main {
+            margin-left: 255px;
+            width: calc(100% - 255px);
+            min-height: 100vh;
+        }
+
+        .home-header {
+            height: 82px;
+            background: white;
+            border-bottom: 1px solid #e5e9f2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 38px;
+        }
+
+        .header-small-title {
+            font-size: 10px;
+            color: #5a55e8;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.3px;
+            margin-bottom: 5px;
+        }
+
+        .home-header h1 {
+            margin: 0;
+            font-size: 21px;
+            color: #111827;
+        }
+
+        .header-badge {
+            padding: 9px 14px;
+            background: #f7f8fc;
+            border: 1px solid #e1e5ef;
+            border-radius: 9px;
+            font-size: 11px;
+            color: #566079;
+        }
+
+        .home-content {
+            padding: 35px 38px 50px;
+        }
+
+        .welcome-section {
+            margin-bottom: 25px;
+        }
+
+        .welcome-section h2 {
+            margin: 0 0 6px;
+            font-size: 25px;
+            color: #111827;
+        }
+
+        .welcome-section p {
+            margin: 0;
+            color: #65708a;
+            font-size: 13px;
+        }
+
+        /* =====================================================
+           HOME INPUT
+           ===================================================== */
+
+        .input-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e2e7f0;
+            box-shadow: 0 5px 18px rgba(25,35,60,0.05);
+        }
+
+        .input-section label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 125px;
+            padding: 15px;
+            border: 1px solid #d4dae7;
+            border-radius: 10px;
+            resize: vertical;
+            font-size: 15px;
+            font-family: Arial, sans-serif;
+            outline: none;
+            background: #fbfcfe;
+        }
+
+        textarea:focus {
+            border-color: #5b57ed;
+            box-shadow: 0 0 0 3px rgba(91,87,237,0.10);
+            background: white;
+        }
+
+        .analyze-btn {
+            margin-top: 15px;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #5555ed, #704df3);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(85,85,237,0.25);
+        }
+
+        /* =====================================================
+           FEATURE CARDS
+           ===================================================== */
+
+        .section-heading {
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .section-heading h2 {
+            margin: 0 0 5px;
+            font-size: 19px;
+            color: #172033;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: #748098;
+            font-size: 12px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .feature-card {
+            padding: 20px;
+            background: white;
+            border-radius: 13px;
+            border: 1px solid #e2e7f0;
+            transition: 0.25s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(25,35,60,0.08);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #f0efff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h3 {
+            margin: 0 0 7px;
+            font-size: 14px;
+            color: #182033;
+        }
+
+        .feature-card p {
+            margin: 0;
+            color: #6b758b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* =====================================================
+           NORMAL PAGES
+           ===================================================== */
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 35px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #312e81;
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #3730a3;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        .description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            padding: 11px 20px;
+            border-radius: 10px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .nav a:hover {
+            background: #3730a3;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* =====================================================
+           RESULT SUMMARY
+           ===================================================== */
+
+        .summary {
+            margin-top: 30px;
+            padding: 22px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+            border-left: 6px solid #4f46e5;
+        }
+
+        .summary p {
+            margin: 8px 0;
+        }
+
+        .sentence-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 17px;
+            margin-top: 15px;
+        }
+
+        /* =====================================================
+           PREDICATE CARDS
+           ===================================================== */
+
+        .predicate-card {
+            margin-top: 25px;
+            padding: 24px;
+            border-radius: 18px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        .predicate-title {
+            display: inline-block;
+            padding: 10px 18px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 15px;
+        }
+
+        .role-card {
+            padding: 18px;
+            border-radius: 14px;
+            min-height: 100px;
+            transition: 0.25s;
+        }
+
+        .role-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 7px 18px rgba(0,0,0,0.10);
+        }
+
+        .role-card h4 {
+            margin: 0 0 10px;
+            font-size: 15px;
+        }
+
+        .role-card p {
+            margin: 0;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .role-predicate {
+            background: #ede9fe;
+            border-left: 5px solid #7c3aed;
+        }
+
+        .role-agent {
+            background: #dcfce7;
+            border-left: 5px solid #16a34a;
+        }
+
+        .role-theme {
+            background: #dbeafe;
+            border-left: 5px solid #2563eb;
+        }
+
+        .role-recipient {
+            background: #fef3c7;
+            border-left: 5px solid #d97706;
+        }
+
+        .role-location {
+            background: #fce7f3;
+            border-left: 5px solid #db2777;
+        }
+
+        .role-time {
+            background: #cffafe;
+            border-left: 5px solid #0891b2;
+        }
+
+        /* =====================================================
+           SEMANTIC GRAPH
+           ===================================================== */
+
+        .semantic-graph {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8fafc, #eef2ff);
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .graph-title {
+            text-align: center;
+            color: #3730a3;
+            margin-bottom: 20px;
+        }
+
+        .network-graph {
+            position: relative;
+            width: 100%;
+            max-width: 850px;
+            height: 560px;
+            margin: 0 auto;
+            border-radius: 20px;
+            background:
+                radial-gradient(circle at center, rgba(99,102,241,0.10), transparent 28%),
+                linear-gradient(135deg, #ffffff, #f8fafc);
+            border: 1px solid #dbeafe;
+            overflow: hidden;
+        }
+
+        .network-edges {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .network-edge {
+            fill: none;
+            stroke: #94a3b8;
+            stroke-width: 2.5;
+            opacity: 0.9;
+        }
+
+        .edge-label {
+            font-size: 13px;
+            font-weight: bold;
+            fill: #475569;
+        }
+
+        .semantic-node {
+            position: absolute;
+            width: 145px;
+            min-height: 82px;
+            padding: 13px;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 7px 18px rgba(0,0,0,0.13);
+            border: 3px solid white;
+            z-index: 3;
+            transform: translate(-50%, -50%);
+        }
+
+        .semantic-node .node-label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            opacity: 0.85;
+        }
+
+        .semantic-node .node-value {
+            font-size: 16px;
+            font-weight: bold;
+            word-break: break-word;
+        }
+
+        .predicate-node {
+            left: 50%;
+            top: 50%;
+            width: 165px;
+            height: 165px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: 6px solid #ddd6fe;
+        }
+
+        .predicate-node .node-label {
+            color: #ede9fe;
+        }
+
+        .agent-node {
+            left: 17%;
+            top: 20%;
+            background: #dcfce7;
+            color: #166534;
+            border-color: #86efac;
+        }
+
+        .theme-node {
+            left: 83%;
+            top: 20%;
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #93c5fd;
+        }
+
+        .recipient-node {
+            left: 17%;
+            top: 80%;
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fcd34d;
+        }
+
+        .location-node {
+            left: 50%;
+            top: 86%;
+            background: #fce7f3;
+            color: #9d174d;
+            border-color: #f9a8d4;
+        }
+
+        .time-node {
+            left: 83%;
+            top: 80%;
+            background: #cffafe;
+            color: #155e75;
+            border-color: #67e8f9;
+        }
+
+        .graph-legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            border-radius: 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .legend-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        /* =====================================================
+           RELATIONSHIPS
+           ===================================================== */
+
+        .relationships {
+            margin-top: 30px;
+        }
+
+        .relationship-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .relationship-card {
+            padding: 18px;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .relationship-card strong {
+            color: #3730a3;
+        }
+
+        /* =====================================================
+           TABLE
+           ===================================================== */
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #3730a3;
+            color: white;
+            padding: 13px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        /* =====================================================
+           HISTORY
+           ===================================================== */
+
+        .filter-section {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .filter-section input,
+        .filter-section select {
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            outline: none;
+        }
+
+        .filter-section input:focus,
+        .filter-section select:focus {
+            border-color: #4f46e5;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .delete-btn:hover {
+            background: #fecaca;
+        }
+
+        /* =====================================================
+           DASHBOARD
+           ===================================================== */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+            margin-top: 25px;
+        }
+
+        .stat-card {
+            padding: 25px;
+            border-radius: 16px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 7px 20px rgba(0,0,0,0.10);
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .stat-number {
+            font-size: 34px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .stat-blue {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+        }
+
+        .stat-purple {
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+        }
+
+        .stat-green {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+
+        .stat-orange {
+            background: linear-gradient(135deg, #ea580c, #f97316);
+        }
+
+        .empty {
+            text-align: center;
+            padding: 35px;
+            color: #64748b;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        @media (max-width: 850px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .home-main {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+            }
+
+            .home-content {
+                padding: 25px 22px 40px;
+            }
+
+            .home-header {
+                padding: 0 22px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .home-layout {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+            }
+
+            .home-main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .sidebar-bottom {
+                margin-bottom: 10px;
+            }
+
+            .home-header {
+                height: auto;
+                padding: 20px;
+            }
+
+            .header-badge {
+                display: none;
+            }
+
+            .home-content {
+                padding: 25px 18px;
+            }
+
+            .network-graph {
+                height: 500px;
+            }
+
+            .semantic-node {
+                width: 115px;
+                min-height: 70px;
+                padding: 9px;
+            }
+
+            .predicate-node {
+                width: 135px;
+                height: 135px;
+            }
+
+            .semantic-node .node-value {
+                font-size: 13px;
+            }
+
+            .edge-label {
+                font-size: 10px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+{% if not show_result and not show_history and not show_dashboard %}
+
+<!-- =========================================================
+     HOME PAGE WITH SIDEBAR
+     ========================================================= -->
+
+<div class="home-layout">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+
+            <div class="logo-box">
+                🧠
+            </div>
+
+            <div class="logo-text">
+
+                <h2>Predicate-Argument</h2>
+
+                <p>Structure Analyzer</p>
+
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <a href="/" class="active">
+                <span>🏠</span>
+                <span>Home</span>
+            </a>
+
+            <a href="/history">
+                <span>📋</span>
+                <span>Analysis History</span>
+            </a>
+
+            <a href="/dashboard">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-section">
+
+            <div class="sidebar-section-title">
+                Project Modules
+            </div>
+
+            <div class="module-item">
+                <span class="module-dot"></span>
+                Predicate Detection
+            </div>
+
+            <div class="module-item">
+                <span class="module-dot"></span>
+                Semantic Roles
+            </div>
+
+            <div class="module-item">
+                <span class="module-dot"></span>
+                POS Tagging
+            </div>
+
+            <div class="module-item">
+                <span class="module-dot"></span>
+                Semantic Graph
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-bottom">
+
+            <strong>🧠 NLP Semantic Analysis</strong>
+
+            <span>
+                Understand predicates and their semantic roles.
+            </span>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN HOME CONTENT ================= -->
+
+    <main class="home-main">
+
+        <header class="home-header">
+
+            <div>
+
+                <div class="header-small-title">
+                    Natural Language Processing System
+                </div>
+
+                <h1>
+                    Predicate-Argument Analyzer
+                </h1>
+
+            </div>
+
+            <div class="header-badge">
+                🧠 NLP Semantic Analysis
+            </div>
+
+        </header>
+
+
+        <div class="home-content">
+
+            <div class="welcome-section">
+
+                <h2>
+                    Welcome! 👋
+                </h2>
+
+                <p>
+                    Analyze sentences and discover their predicate-argument structure.
+                </p>
+
+            </div>
+
+
+            <!-- ================= INPUT SECTION ================= -->
+
+            <div class="input-section">
+
+                <form method="POST" action="/analyze">
+
+                    <label>
+                        Enter a sentence for semantic analysis
+                    </label>
+
+                    <textarea
+                        name="sentence"
+                        placeholder="Example: Arjun sent the research report to Priya at the university yesterday."
+                        required
+                    ></textarea>
+
+
+                    <button
+                        type="submit"
+                        class="analyze-btn"
+                    >
+                        🔍 Analyze Sentence
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- ================= SYSTEM FEATURES ================= -->
+
+            <div class="section-heading">
+
+                <h2>
+                    System Features
+                </h2>
+
+                <p>
+                    Explore the main NLP capabilities of the Predicate-Argument Analyzer.
+                </p>
+
+            </div>
+
+
+            <div class="feature-grid">
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🧠
+                    </div>
+
+                    <h3>
+                        Predicate Detection
+                    </h3>
+
+                    <p>
+                        Finds one or more predicates in the input sentence.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        👤
+                    </div>
+
+                    <h3>
+                        Agent Identification
+                    </h3>
+
+                    <p>
+                        Determines who performs the action.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📦
+                    </div>
+
+                    <h3>
+                        Theme Identification
+                    </h3>
+
+                    <p>
+                        Determines the object or entity affected by the action.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🎯
+                    </div>
+
+                    <h3>
+                        Recipient Detection
+                    </h3>
+
+                    <p>
+                        Identifies the receiver or destination of the action.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📍
+                    </div>
+
+                    <h3>
+                        Location Detection
+                    </h3>
+
+                    <p>
+                        Detects locations associated with the predicate.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        ⏰
+                    </div>
+
+                    <h3>
+                        Time Detection
+                    </h3>
+
+                    <p>
+                        Detects temporal information from the sentence.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📊
+                    </div>
+
+                    <h3>
+                        POS Tagging
+                    </h3>
+
+                    <p>
+                        Displays the grammatical category of each word.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🔗
+                    </div>
+
+                    <h3>
+                        Semantic Graph
+                    </h3>
+
+                    <p>
+                        Represents semantic roles around the central predicate.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+{% elif show_result %}
+
+<!-- =========================================================
+     ANALYSIS RESULT PAGE
+     ========================================================= -->
+
+<div class="container">
+
+    <div class="nav">
+
+        <a href="/">Home</a>
+
+        <a href="/history">Analysis History</a>
+
+        <a href="/dashboard">Dashboard</a>
+
+    </div>
+
+
+    <h1>
+        Predicate-Argument Structure Analyzer
+    </h1>
+
+    <p class="description">
+        Semantic analysis of the submitted sentence
+    </p>
+
+
+    <div class="sentence-box">
+
+        <strong>Input Sentence:</strong>
+
+        {{ result.sentence }}
+
+    </div>
+
+
+    <div class="summary">
+
+        <h2>Semantic Analysis Summary</h2>
+
+        <p>
+            <strong>Total Predicates:</strong>
+            {{ result.predicate_data|length }}
+        </p>
+
+        <p>
+            <strong>Sentence:</strong>
+            {{ result.sentence }}
+        </p>
+
+    </div>
+
+
+    <h2>
+        Predicate-Argument Analysis
+    </h2>
+
+
+    {% for item in result.predicate_data %}
+
+    <div class="predicate-card">
+
+        <div class="predicate-title">
+
+            Predicate {{ loop.index }}:
+            {{ item.predicate }}
+
+        </div>
+
+
+        <div class="roles-grid">
+
+            <div class="role-card role-predicate">
+
+                <h4>Predicate</h4>
+
+                <p>{{ item.predicate }}</p>
+
+            </div>
+
+
+            <div class="role-card role-agent">
+
+                <h4>Agent</h4>
+
+                <p>{{ item.agent }}</p>
+
+            </div>
+
+
+            <div class="role-card role-theme">
+
+                <h4>Theme</h4>
+
+                <p>{{ item.theme }}</p>
+
+            </div>
+
+
+            <div class="role-card role-recipient">
+
+                <h4>Recipient</h4>
+
+                <p>{{ item.recipient }}</p>
+
+            </div>
+
+
+            <div class="role-card role-location">
+
+                <h4>Location</h4>
+
+                <p>{{ item.location }}</p>
+
+            </div>
+
+
+            <div class="role-card role-time">
+
+                <h4>Time</h4>
+
+                <p>{{ item.time }}</p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= SEMANTIC GRAPH ================= -->
+
+        <div class="semantic-graph">
+
+            <h2 class="graph-title">
+                Semantic Role Visualization
+            </h2>
+
+
+            <div class="network-graph">
+
+                <svg
+                    class="network-edges"
+                    viewBox="0 0 850 560"
+                    preserveAspectRatio="none"
+                >
+
+                    <path
+                        class="network-edge"
+                        d="M145,115 Q260,170 425,280"
+                    />
+
+                    <text
+                        class="edge-label"
+                        x="270"
+                        y="175"
+                    >
+                        Agent
+                    </text>
+
+
+                    <path
+                        class="network-edge"
+                        d="M705,115 Q590,170 425,280"
+                    />
+
+                    <text
+                        class="edge-label"
+                        x="570"
+                        y="175"
+                    >
+                        Theme
+                    </text>
+
+
+                    <path
+                        class="network-edge"
+                        d="M145,448 Q260,380 425,280"
+                    />
+
+                    <text
+                        class="edge-label"
+                        x="270"
+                        y="405"
+                    >
+                        Recipient
+                    </text>
+
+
+                    <path
+                        class="network-edge"
+                        d="M425,482 Q425,390 425,280"
+                    />
+
+                    <text
+                        class="edge-label"
+                        x="440"
+                        y="405"
+                    >
+                        Location
+                    </text>
+
+
+                    <path
+                        class="network-edge"
+                        d="M705,448 Q590,380 425,280"
+                    />
+
+                    <text
+                        class="edge-label"
+                        x="575"
+                        y="405"
+                    >
+                        Time
+                    </text>
+
+                </svg>
+
+
+                <div class="semantic-node agent-node">
+
+                    <div class="node-label">
+                        AGENT
+                    </div>
+
+                    <div class="node-value">
+                        {{ item.agent }}
+                    </div>
+
+                </div>
+
+
+                <div class="semantic-node theme-node">
+
+                    <div class="node-label">
+                        THEME
+                    </div>
+
+                    <div class="node-value">
+                        {{ item.theme }}
+                    </div>
+
+                </div>
+
+
+                <div class="semantic-node predicate-node">
+
+                    <div class="node-label">
+                        PREDICATE
+                    </div>
+
+                    <div class="node-value">
+                        {{ item.predicate }}
+                    </div>
+
+                </div>
+
+
+                <div class="semantic-node recipient-node">
+
+                    <div class="node-label">
+                        RECIPIENT
+                    </div>
+
+                    <div class="node-value">
+                        {{ item.recipient }}
+                    </div>
+
+                </div>
+
+
+                <div class="semantic-node location-node">
+
+                    <div class="node-label">
+                        LOCATION
+                    </div>
+
+                    <div class="node-value">
+                        {{ item.location }}
+                    </div>
+
+                </div>
+
+
+                <div class="semantic-node time-node">
+
+                    <div class="node-label">
+                        TIME
+                    </div>
+
+                    <div class="node-value">
+                        {{ item.time }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="graph-legend">
+
+                <div class="legend-item">
+                    <span
+                        class="legend-dot"
+                        style="background:#4f46e5;"
+                    ></span>
+                    Predicate
+                </div>
+
+                <div class="legend-item">
+                    <span
+                        class="legend-dot"
+                        style="background:#16a34a;"
+                    ></span>
+                    Agent
+                </div>
+
+                <div class="legend-item">
+                    <span
+                        class="legend-dot"
+                        style="background:#2563eb;"
+                    ></span>
+                    Theme
+                </div>
+
+                <div class="legend-item">
+                    <span
+                        class="legend-dot"
+                        style="background:#d97706;"
+                    ></span>
+                    Recipient
+                </div>
+
+                <div class="legend-item">
+                    <span
+                        class="legend-dot"
+                        style="background:#db2777;"
+                    ></span>
+                    Location
+                </div>
+
+                <div class="legend-item">
+                    <span
+                        class="legend-dot"
+                        style="background:#0891b2;"
+                    ></span>
+                    Time
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= SEMANTIC RELATIONSHIPS ================= -->
+
+        <div class="relationships">
+
+            <h2>
+                Semantic Relationships
+            </h2>
+
+
+            <div class="relationship-grid">
+
+                <div class="relationship-card">
+
+                    <strong>{{ item.agent }}</strong>
+
+                    performs
+
+                    <strong>{{ item.predicate }}</strong>
+
+                </div>
+
+
+                <div class="relationship-card">
+
+                    <strong>{{ item.predicate }}</strong>
+
+                    acts on
+
+                    <strong>{{ item.theme }}</strong>
+
+                </div>
+
+
+                <div class="relationship-card">
+
+                    <strong>{{ item.predicate }}</strong>
+
+                    is directed toward
+
+                    <strong>{{ item.recipient }}</strong>
+
+                </div>
+
+
+                <div class="relationship-card">
+
+                    <strong>{{ item.predicate }}</strong>
+
+                    occurs at
+
+                    <strong>{{ item.location }}</strong>
+
+                </div>
+
+
+                <div class="relationship-card">
+
+                    <strong>{{ item.predicate }}</strong>
+
+                    occurs during
+
+                    <strong>{{ item.time }}</strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+
+    <!-- ================= POS TABLE ================= -->
+
+    <h2>
+        Part-of-Speech Analysis
+    </h2>
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Word</th>
+                    <th>POS Tag</th>
+                    <th>Meaning</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for word, tag in result.pos_tags %}
+
+                <tr>
+
+                    <td>{{ word }}</td>
+
+                    <td>{{ tag }}</td>
+
+                    <td>
+
+                        {% if tag == "NN" %}
+                            Noun
+                        {% elif tag == "NNS" %}
+                            Plural Noun
+                        {% elif tag == "NNP" %}
+                            Proper Noun
+                        {% elif tag == "NNPS" %}
+                            Proper Plural Noun
+                        {% elif tag.startswith("VB") %}
+                            Verb
+                        {% elif tag.startswith("JJ") %}
+                            Adjective
+                        {% elif tag.startswith("RB") %}
+                            Adverb
+                        {% elif tag == "DT" %}
+                            Determiner
+                        {% elif tag == "PRP" %}
+                            Personal Pronoun
+                        {% elif tag == "PRP$" %}
+                            Possessive Pronoun
+                        {% elif tag == "IN" %}
+                            Preposition
+                        {% elif tag == "TO" %}
+                            To
+                        {% elif tag == "CC" %}
+                            Coordinating Conjunction
+                        {% elif tag == "CD" %}
+                            Cardinal Number
+                        {% elif tag == "." %}
+                            Punctuation
+                        {% else %}
+                            {{ tag }}
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <br>
+
+
+    <div style="text-align:center;">
+
+        <a
+            href="/"
+            style="
+                display:inline-block;
+                padding:12px 24px;
+                background:#4f46e5;
+                color:white;
+                text-decoration:none;
+                border-radius:10px;
+                font-weight:bold;
+            "
+        >
+            Analyze Another Sentence
+        </a>
+
+    </div>
+
+</div>
+
+
+{% elif show_history %}
+
+<!-- =========================================================
+     HISTORY PAGE
+     ========================================================= -->
+
+<div class="container">
+
+    <div class="nav">
+
+        <a href="/">Home</a>
+
+        <a href="/history">Analysis History</a>
+
+        <a href="/dashboard">Dashboard</a>
+
+    </div>
+
+
+    <h1>
+        Analysis History
+    </h1>
+
+    <p class="description">
+        Previously analyzed sentences and their semantic roles
+    </p>
+
+
+    <div class="filter-section">
+
+        <input
+            type="text"
+            id="historySearch"
+            placeholder="Search sentence..."
+            onkeyup="filterHistory()"
+        >
+
+
+        <select
+            id="predicateFilter"
+            onchange="filterHistory()"
+        >
+
+            <option value="all">
+                All Predicates
+            </option>
+
+            {% for predicate in predicates %}
+
+            <option value="{{ predicate|lower }}">
+                {{ predicate }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <select
+            id="agentFilter"
+            onchange="filterHistory()"
+        >
+
+            <option value="all">
+                All Agents
+            </option>
+
+            {% for agent in agents %}
+
+            <option value="{{ agent|lower }}">
+                {{ agent }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <select
+            id="locationFilter"
+            onchange="filterHistory()"
+        >
+
+            <option value="all">
+                All Locations
+            </option>
+
+            {% for location in locations %}
+
+            <option value="{{ location|lower }}">
+                {{ location }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+    </div>
+
+
+    {% if history %}
+
+    <div class="table-wrapper">
+
+        <table id="historyTable">
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Sentence</th>
+                    <th>Predicate</th>
+                    <th>Agent</th>
+                    <th>Theme</th>
+                    <th>Recipient</th>
+                    <th>Location</th>
+                    <th>Time</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for row in history %}
+
+                <tr>
+
+                    <td>{{ row[0] }}</td>
+
+                    <td>{{ row[1] }}</td>
+
+                    <td>{{ row[2] }}</td>
+
+                    <td>{{ row[3] }}</td>
+
+                    <td>{{ row[4] }}</td>
+
+                    <td>{{ row[5] }}</td>
+
+                    <td>{{ row[6] }}</td>
+
+                    <td>{{ row[7] }}</td>
+
+                    <td>
+
+                        <form
+                            method="POST"
+                            action="/delete_history/{{ row[0] }}"
+                            onsubmit="return confirm('Delete this record?');"
+                        >
+
+                            <button
+                                type="submit"
+                                class="delete-btn"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty">
+
+        <h3>
+            No Analysis History
+        </h3>
+
+        <p>
+            Analyze a sentence to create your first history record.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+{% elif show_dashboard %}
+
+<!-- =========================================================
+     DASHBOARD PAGE
+     ========================================================= -->
+
+<div class="container">
+
+    <div class="nav">
+
+        <a href="/">Home</a>
+
+        <a href="/history">Analysis History</a>
+
+        <a href="/dashboard">Dashboard</a>
+
+    </div>
+
+
+    <h1>
+        NLP Analysis Dashboard
+    </h1>
+
+    <p class="description">
+        Overview of your Predicate-Argument Structure analysis activity
+    </p>
+
+
+    <div class="stats-grid">
+
+        <div class="stat-card stat-blue">
+
+            <h3>
+                Total Analyses
+            </h3>
+
+            <div class="stat-number">
+                {{ total_analyses }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card stat-purple">
+
+            <h3>
+                Total Predicates
+            </h3>
+
+            <div class="stat-number">
+                {{ total_predicates }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card stat-green">
+
+            <h3>
+                Total Agents
+            </h3>
+
+            <div class="stat-number">
+                {{ total_agents }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card stat-orange">
+
+            <h3>
+                Total Locations
+            </h3>
+
+            <div class="stat-number">
+                {{ total_locations }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <h2>
+        Project Capabilities
+    </h2>
+
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🧠
+            </div>
+
+            <h3>
+                Predicate Detection
+            </h3>
+
+            <p>
+                Identifies the main action or predicate in a sentence.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                👤
+            </div>
+
+            <h3>
+                Agent Detection
+            </h3>
+
+            <p>
+                Identifies who performs the action.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                📦
+            </div>
+
+            <h3>
+                Theme Detection
+            </h3>
+
+            <p>
+                Identifies the entity affected by the predicate.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🎯
+            </div>
+
+            <h3>
+                Recipient Detection
+            </h3>
+
+            <p>
+                Identifies the receiver or target of the action.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                📍
+            </div>
+
+            <h3>
+                Location Detection
+            </h3>
+
+            <p>
+                Identifies where the event takes place.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                ⏰
+            </div>
+
+            <h3>
+                Time Detection
+            </h3>
+
+            <p>
+                Identifies the time associated with the event.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🔗
+            </div>
+
+            <h3>
+                Semantic Relationships
+            </h3>
+
+            <p>
+                Displays meaningful relationships between predicate and arguments.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                📊
+            </div>
+
+            <h3>
+                POS Analysis
+            </h3>
+
+            <p>
+                Performs Part-of-Speech tagging using NLTK.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<script>
+
+    function filterHistory() {
+
+        const searchInput =
+            document.getElementById("historySearch");
+
+        const predicateFilter =
+            document.getElementById("predicateFilter");
+
+        const agentFilter =
+            document.getElementById("agentFilter");
+
+        const locationFilter =
+            document.getElementById("locationFilter");
+
+        const table =
+            document.getElementById("historyTable");
+
+        if (!table) {
+            return;
+        }
+
+        const search =
+            searchInput.value.toLowerCase();
+
+        const predicate =
+            predicateFilter.value.toLowerCase();
+
+        const agent =
+            agentFilter.value.toLowerCase();
+
+        const location =
+            locationFilter.value.toLowerCase();
+
+        const rows =
+            table.getElementsByTagName("tbody")[0]
+                 .getElementsByTagName("tr");
+
+
+        for (let i = 0; i < rows.length; i++) {
+
+            const cells =
+                rows[i].getElementsByTagName("td");
+
+            const sentence =
+                cells[1].innerText.toLowerCase();
+
+            const rowPredicate =
+                cells[2].innerText.toLowerCase();
+
+            const rowAgent =
+                cells[3].innerText.toLowerCase();
+
+            const rowLocation =
+                cells[6].innerText.toLowerCase();
+
+
+            const searchMatch =
+                sentence.includes(search);
+
+            const predicateMatch =
+                predicate === "all" ||
+                rowPredicate === predicate;
+
+            const agentMatch =
+                agent === "all" ||
+                rowAgent === agent;
+
+            const locationMatch =
+                location === "all" ||
+                rowLocation === location;
+
+
+            if (
+                searchMatch &&
+                predicateMatch &&
+                agentMatch &&
+                locationMatch
+            ) {
+
+                rows[i].style.display = "";
+
+            } else {
+
+                rows[i].style.display = "none";
+
+            }
+
+        }
+
+    }
+
+</script>
+
+
+</body>
+</html>
